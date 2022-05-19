@@ -1,11 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Field, reduxForm } from 'redux-form';
 import * as actions from '../actions/index.js';
 
-const mapStateToProps = (state) => {
-  const props = {
-    text: state.todo,
-  };
+const mapStateToProps = () => {
+  const props = {};
   return props;
 };
 
@@ -16,37 +15,30 @@ const prefix = (prefix = 'id')=> {
 }
 
 const actionCreators = {
-  updateTodoText: actions.updateTodoText,
   addTodo: actions.addTodo,
 };
 
 const TodoInput = (props)=>{
 
-  const handleaddTodo = (e) => {
-    e.preventDefault();
-    const { addTodo, text } = props;
-    if (text.length === 0) {
-      return null;
-    }
-    const todo = { text, id: prefix() };
+  const handleaddTodo = (values) => {
+    const { addTodo, reset } = props;
+    const todo = { ...values, id: prefix(), state: 'active' };
     addTodo({ todo });
-  };
+    reset();
+  }
 
-  const handleupdateTodoText = (e) => {
-    const { updateTodoText } = props;
-    updateTodoText({ todo: e.target.value });
-  };
-
+  const { handleSubmit } = props;
   return (
-    <form onSubmit={handleaddTodo}>
-        <input
-          type="text"
-          value={props.text}
-        onChange={handleupdateTodoText}
-        />
+    <form onSubmit={handleSubmit(handleaddTodo)}>
+      <Field name="text" required component="input" type="text" />
+      <input type="submit" value="Add" />
     </form>
   );
 
 }
 
-export default connect(mapStateToProps, actionCreators)(TodoInput);
+const ConnectedTodoInput = connect(mapStateToProps, actionCreators)(TodoInput);
+
+export default reduxForm({
+  form: 'TodoInput',
+})(ConnectedTodoInput);

@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import { handleActions } from 'redux-actions';
+import { reducer as formReducer } from 'redux-form';
 import * as actions from '../actions/index.js';
 
 const todos = handleActions({
@@ -21,18 +22,18 @@ const todos = handleActions({
       })
     };
   },
+  [actions.toggleTodoState](state, { payload: { id } }) {
+    const todo = state.byId[id];
+    const newState = todo.state === 'active' ? 'done' : 'active';
+    const updatedTodo = { ...todo, state: newState };
+    return {
+      ...state,
+      byId: { ...state.byId, [todo.id]: updatedTodo },
+    };
+  },
 }, { byId: {}, allIds: [], });
-
-const todo = handleActions({
-  [actions.addTodo]() {
-    return '';
-  },
-  [actions.updateTodoText]( state, { payload }) {
-    return payload.todo;
-  },
-}, '');
 
 export default combineReducers({
   todos,
-  todo,
+  form: formReducer,
 });
